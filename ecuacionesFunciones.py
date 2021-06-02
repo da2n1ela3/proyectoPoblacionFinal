@@ -84,7 +84,33 @@ class Ecuaciones:
         PEulerB[iter] = PEulerB[0] - PEulerB[iter - 1] + h * self.dp(IEulerB[iter - 1])
         """
 
+    def eulerModSupport(self, ec, s1, e1, i1, r1, p1,st,et,rt,pt):
+        h = 0.01
+        return [s1 - ec[0] + (h/2) * (self.ds(ec[0], ec[1], ec[2], ec[3])+ self.ds(ec[st], ec[et], ec[rt], ec[pt])),
+                e1 - ec[1] + (h/2) * (self.de(ec[0], ec[1], ec[2]) + self.de(ec[st], ec[et], ec[rt])),
+                i1 - ec[2] + (h/2) * (self.di(ec[1], ec[2]) + self.di(ec[et], ec[rt])),
+                r1 - ec[3] + (h/2) * (self.dr(ec[2], ec[1], ec[3])+self.dr(ec[rt], ec[et], ec[pt])),
+                p1 - ec[4] + (h/2) * (self.dp(ec[2])+self.dp(ec[rt]))]
+    def eularMod(self,h,t0,t1):
+        T = np.arange(t0, t1, h)
+        SEulerM = np.zeros(len(T))
+        EEulerM = np.zeros(len(T))
+        IEulerM = np.zeros(len(T))
+        REulerM = np.zeros(len(T))
+        PEulerM = np.zeros(len(T))
+        for iter in range(1, len(T)):
+            Sol = fsolve(self.eulerModSupport, np.array(
+                [SEulerM[iter - 1], EEulerM[iter - 1], IEulerM[iter - 1], REulerM[iter - 1], PEulerM[iter - 1]]),
+                (SEulerM[iter - 1], EEulerM[iter - 1], IEulerM[iter - 1], REulerM[iter - 1], PEulerM[iter - 1]),
+                 (SEulerM[iter], EEulerM[iter], IEulerM[iter], REulerM[iter], PEulerM[iter]))
 
+            SEulerM[iter] = Sol[0]
+            EEulerM[iter] = Sol[1]
+            IEulerM[iter] = Sol[2]
+            REulerM[iter] = Sol[3]
+            PEulerM[iter] = Sol[4]
+
+        return SEulerM, EEulerM, IEulerM, REulerM, PEulerM
 
 
 
